@@ -1,20 +1,20 @@
-'use client'
+'use client';
 
-import React from 'react'
-import { useSubscription } from '@/hooks/use-subscription'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Check, X, AlertTriangle, Brain, FileText, Shield, ArrowRight } from "lucide-react"
-import { Separator } from "@/components/ui/separator"
-import { Skeleton } from "@/components/ui/skeleton"
-import Link from 'next/link'
+import React from 'react';
+import { useSubscription } from '@/hooks/use-subscription';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Check, X, AlertTriangle, Brain, FileText, Shield, ArrowRight } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import Link from 'next/link';
 
 export default function UpgradePage() {
-  const { isTrialActive, isFreePlan, loading } = useSubscription()
+  const { isTrialActive, isFreePlan, loading } = useSubscription();
 
-  const trialExpired = !isTrialActive && isFreePlan
+  const trialExpired = !isTrialActive && isFreePlan;
 
   if (loading) {
     return (
@@ -25,7 +25,7 @@ export default function UpgradePage() {
           <Skeleton className="h-[500px]" />
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -104,5 +104,5 @@ export default function UpgradePage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

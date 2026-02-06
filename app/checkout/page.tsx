@@ -1,51 +1,66 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/client'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card"
-import { Loader2, CheckCircle, CreditCard, ShieldCheck } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/client';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from "@/components/ui/card";
+import { Loader2, CheckCircle, CreditCard, ShieldCheck } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+
+// Constantes fora do componente para estabilidade
+const PLANS = {
+  'Iniciante': 0,
+  'Básico': 29.90,
+  'Profissional': 59.90
+};
+
+interface PlanState {
+  name: string;
+  price: number;
+}
 
 export default function CheckoutPage() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState(false);
-  const [plan, setPlan] = useState<any>(null);
+  const [plan, setPlan] = useState<PlanState | null>(null);
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
   const { toast } = useToast();
   const supabase = createClient();
 
-  const PLANS = {
-    'Iniciante': 0,
-    'Básico': 29.90,
-    'Profissional': 59.90
-  };
-
   useEffect(() => {
     const fetchPlan = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      if (!currentUser) {
-        router.push('/login');
-        return;
-      }
-      setUser(currentUser);
+      try {
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (!currentUser) {
+          router.push('/login');
+          return;
+        }
+        setUser(currentUser);
 
-      const { data: profile } = await supabase
-        .from('admin_users_view')
-        .select('selected_plan')
-        .single();
-      
-      const localPlan = typeof window !== 'undefined' ? localStorage.getItem('selectedPlan') : null;
-      const planName = profile?.selected_plan || localPlan || 'Profissional';
-      
-      setPlan({
-        name: planName,
-        price: PLANS[planName as keyof typeof PLANS] || 59.90
-      });
-      setLoading(false);
+        const { data: profile } = await supabase
+          .from('admin_users_view')
+          .select('selected_plan')
+          .single();
+        
+        const localPlan = typeof window !== 'undefined' ? localStorage.getItem('selectedPlan') : null;
+        const planName = profile?.selected_plan || localPlan || 'Profissional';
+        
+        // Validação de segurança para garantir que o plano existe
+        const safePlanName = (planName in PLANS) ? planName : 'Profissional';
+
+        setPlan({
+          name: safePlanName,
+          price: PLANS[safePlanName as keyof typeof PLANS]
+        });
+      } catch (error) {
+        console.error("Erro ao buscar plano:", error);
+      } finally {
+        setLoading(false);
+      }
     };
+    
     fetchPlan();
   }, [router, supabase]);
 
